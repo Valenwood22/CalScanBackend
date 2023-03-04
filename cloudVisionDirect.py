@@ -30,14 +30,15 @@ class OCR:
             #### TEXT DETECTION ######
             response_text = json.loads(response.content)['responses'][0]
 
-            path = f"{os.getcwd()}"
+            path = f"{os.getcwd()}\\CalScanBackend"
             filePath = path + f"{imageName}_response.pickle"
-            save = open(filePath, "wb")
-            pickle.dump(response_text, save)
+            print(filePath)
+            with open(filePath, "wb") as f:
+                pickle.dump(response_text, f)
 
         else:
             path = f"{os.getcwd()}"
-            save = open(path + f"/{imageName}_response.pickle", "rb")
+            save = open(path + f"\\{imageName}_response.pickle", "rb")
             response_text = pickle.load(save)
             image_path = f'{imageName}.jpg'
             image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
@@ -74,7 +75,7 @@ class OCR:
     def buildWord(self, word):
         strWord = ""
         for symbol in word['symbols']:
-            strWord += symbol['text']
+            strWord += symbol['text'].strip()
         return strWord
 
 
