@@ -16,6 +16,7 @@ def test():
     r = request
 
     image_name = r.headers['image-name']
+    is_live = r.headers['live'] == 'True'
     image_64_decode = base64.decodebytes(r.data)
     image_result = open(f'{image_name}.jpg', 'wb')  # create a writable image and write the decoding result
     image_result.write(image_64_decode)
@@ -28,7 +29,7 @@ def test():
     f.close()
 
     # encode response using jsonpickle
-    e = Engine(debug=debugPath, live=True)
+    e = Engine(debug=debugPath, live=is_live)
     return e.returnResponse()
 
 
