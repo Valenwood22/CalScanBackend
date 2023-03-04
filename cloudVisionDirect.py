@@ -23,7 +23,7 @@ class OCR:
 
         # prepare headers for http request
         body = {"requests":[{"image":{"content":image_64_encode.decode("utf-8")},
-                             "features":[{"type":"TEXT_DETECTION","maxResults":1}]}]}
+                             "features":[{"type":"TEXT_DETECTION", "maxResults": 1}]}]}
 
         if live:
             response = requests.post(url, data=json.dumps(body), headers={'Accept': 'application/json','Content-Type': 'application/json'})
@@ -43,40 +43,40 @@ class OCR:
             image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
 
 
-        phrases = response_text['textAnnotations'][0]['description'].split('\n')
+        blocks = response_text['fullTextAnnotation']['pages'][0]['blocks']
+
 
         if debugPath:
             with open(f'{debugPath}/log.txt', 'a', encoding="utf-8") as f:
-                print(phrases)
-                f.write(f"Raw phrases: {phrases}\n")
+                # print(blocks)
+                f.write(f"Raw phrases: {blocks}\n")
 
         out = []
-        i = 1
-        wordIndex = 0
-        # while i < len(response_text['textAnnotations'])-1:
-        while i < len(phrases)-1:
+        for block in blocks:
+            c1b, c2b, c3b, c4b = [(bound['x'], bound['y']) for bound in block['boundingBox']['vertices']]
+            # cv2.rectangle(image, c3b, c1b, 255, 2)
+            for paragraph in block['paragraphs']:
+                c1p, c2p, c3p, c4p = [(bound['x'], bound['y']) for bound in paragraph['boundingBox']['vertices']]
+                # cv2.rectangle(image, c3p, c1p, (255,255,0), 2)
+                for word in paragraph['words']:
+                    c1w, c2w, c3w, c4w = [(bound['x'], bound['y']) for bound in word['boundingBox']['vertices']]
+                    # cv2.rectangle(image, c3w, c1w, (255, 0, 255), 2)
+                    out.append({"text": self.buildWord(word), "days":(c1w, c3w)})
 
-            words = len(phrases[wordIndex].strip().split(' '))
-            for j in range(words):
-                r = response_text['textAnnotations'][i]
-                c1, c2, c3, c4 = [(bound['x'], bound['y']) for bound in r['boundingPoly']['vertices']]
-
-                if debugPath: cv2.rectangle(image, c3, c1, 255, 2)
-                # print(phrases[i], words)
-                if j == 0:
-                    out.append({"text": [r['description']],"days": [(c1, c3)]})
-                else:
-                    out[-1]["text"].append(r['description'])
-                    out[-1]["days"].append((c1, c3))
-
-                i += 1
-            wordIndex += 1
 
         end = time.time()
+
         print(f"Time to generate Text {(end - start) * 1000:.2f}ms")
         if debugPath: cv2.imwrite(f'{debugPath}/5{imageName}B.jpg', image)
         # print(out)
         self.text = out
 
+    def buildWord(self, word):
+        strWord = ""
+        for symbol in word['symbols']:
+            strWord += symbol['text']
+        return strWord
+
+
 if __name__ == '__main__':
-    OCR(live=False)
+    OCR(live=False, debugPath="C:\\Users\\jxgisi\\PycharmProjects\\CalScanBackend\\deepData")
