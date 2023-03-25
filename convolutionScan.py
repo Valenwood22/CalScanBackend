@@ -15,6 +15,7 @@ class Scan:
 
         # convert the image to grayscale, blur it, and find edges in the image
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         kernel = np.ones((5, 5), np.uint8)
         gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
         edged = cv2.Canny(gray, 100, 200)
@@ -28,9 +29,7 @@ class Scan:
         image_path = f'{imageName}B.jpg'
         image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
 
-
         result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED, mask=None)
-
 
         """
         1. Remove all the overlapping boxes and remove them

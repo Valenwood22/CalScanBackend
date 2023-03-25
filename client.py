@@ -6,13 +6,13 @@ url = addr + '/api/calendar'
 
 # prepare headers for http request
 content_type = 'image/jpeg'
-headers = {'content-type': content_type, 'image-name':'C4'}
+headers = {'content-type': content_type, 'image-name':'C4', 'live':'False'}
 
 # img = cv2.imread('C4.jpg')
-img_data = open('C:\\Users\\treeb\\OneDrive\\Desktop\\calendarData\\S1.jpg', 'rb')
+img_data = open('hotSeat\\C4.jpg', 'rb')
 image_read = img_data.read()
 image_64_encode = base64.encodebytes(image_read)
-
+print("sending post")
 response = requests.post(url, data=image_64_encode, headers=headers)
 
 # decode response

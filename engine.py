@@ -12,6 +12,7 @@ import statistics
 import json
 from companion import library
 
+
 class Engine():
     def __init__(self, debug=None, live=False):
         # TODO: add top half am bottom half pm
@@ -26,11 +27,12 @@ class Engine():
         #             cv2.rectangle(image, (dayBlock.top_left.x, dayBlock.top_left.y), (dayBlock.bottom_right.x, dayBlock.bottom_right.y), (255, 255, 0), 2)
         #     cv2.imwrite(f'{self.debug}/C4_showBlockDays.jpg', image)
 
-        ocr = OCR(debugPath=debug,  live=live).text
+        ocr = OCR(debugPath=debug, live=live).text
         # print(ocr)
         # print(calendarGrid)
-        textMap = [[[] for i in range(len(calendarGrid[0])+1)] for j in range(len(calendarGrid)+1)]
-        self.months = {'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'}
+        textMap = [[[] for i in range(len(calendarGrid[0]) + 1)] for j in range(len(calendarGrid) + 1)]
+        self.months = {'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
+                       'november', 'december'}
         self.monthsMap = {'january': '01', 'february': '02', 'march': '03', 'april': '04', 'may': '05', 'june': '06',
                           'july': '07', 'august': '08', 'september': '09', 'october': '10', 'november': '11',
                           'december': '12'}
@@ -74,8 +76,8 @@ class Engine():
                     # print(item['text'],"spans cols", startCol, "-", endCol)
 
             # 3. put the words in the correct day
-            for i in range(startRow,endRow+1):
-                for j in range(startCol,endCol+1):
+            for i in range(startRow, endRow + 1):
+                for j in range(startCol, endCol + 1):
                     textMap[i][j].append(item['text'])
 
             # 4. predict what day of the month it is
@@ -88,14 +90,12 @@ class Engine():
                         # get the distance from the current grid number
                         distance = math.hypot(day.top_left.x - item['days'][0][0], day.top_left.y - item['days'][0][1])
                         if distance < localDistanceError:
-                            dayAnswer = [i,j]
+                            dayAnswer = [i, j]
                             localDistanceError = distance
 
                 calendarGrid[dayAnswer[0]][dayAnswer[1]].dayOfMonth = int(pureText.strip())
                 calendarGrid[dayAnswer[0]][dayAnswer[1]].prediction_error = localDistanceError
                 if localDistanceError != float('inf'): errorReadings.append(localDistanceError)
-
-
 
         # get the confidence that is the right month
         averageError = statistics.mean(errorReadings)
@@ -115,27 +115,28 @@ class Engine():
 
                 # 2. look in all possible directions
                 if i > 0:
-                    if calendarGrid[i-1][j].dayOfMonth == day.dayOfMonth - 7:
+                    if calendarGrid[i - 1][j].dayOfMonth == day.dayOfMonth - 7:
                         confidence += 1
                     total += 1
-                if i < len(calendarGrid)-1:
+                if i < len(calendarGrid) - 1:
                     if calendarGrid[i + 1][j].dayOfMonth == day.dayOfMonth + 7:
                         confidence += 1
                     total += 1
                 if j > 0:
-                    if calendarGrid[i][j-1].dayOfMonth == day.dayOfMonth - 1:
+                    if calendarGrid[i][j - 1].dayOfMonth == day.dayOfMonth - 1:
                         confidence += 1
                     total += 1
-                if j < len(calendarGrid[0])-1:
-                    if calendarGrid[i][j+1].dayOfMonth == day.dayOfMonth + 1:
+                if j < len(calendarGrid[0]) - 1:
+                    if calendarGrid[i][j + 1].dayOfMonth == day.dayOfMonth + 1:
                         confidence += 1
                     total += 1
-                day.confidence = confidence/total
+                day.confidence = confidence / total
 
         # Backfill days with low confidence
         visited = set()
         cntr = 0
-        while len(visited) < len(calendarGrid)*len(calendarGrid[0]) and cntr < len(calendarGrid)*len(calendarGrid[0]):
+        while len(visited) < len(calendarGrid) * len(calendarGrid[0]) and cntr < len(calendarGrid) * len(
+                calendarGrid[0]):
             for i, row in enumerate(calendarGrid):
                 for j, day in enumerate(row):
                     if str(f"{i}{j}") not in visited:
@@ -182,7 +183,7 @@ class Engine():
                 f.write("\n")
                 for i, row in enumerate(calendarGrid):
                     for j, day in enumerate(row):
-                        for word in textMap[i+1][j+1]:
+                        for word in textMap[i + 1][j + 1]:
                             if word.lower() != day.dayOfMonth:
                                 if bookOfWords.check(word) and not word.isnumeric() and len(word) > 1:
                                     title = word
@@ -194,8 +195,9 @@ class Engine():
                                     allDay = "False"
                                     multiDay = "False"
                                     jsonData.append({"title": title, "start": start_iso_date, "end": end_iso_date,
-                                     "attendees": attendees, "location": location, "reminders": reminders,
-                                     "allDay": allDay, "multiDay": multiDay})
+                                                     "attendees": attendees, "location": location,
+                                                     "reminders": reminders,
+                                                     "allDay": allDay, "multiDay": multiDay})
                                 else:
                                     f.write(f"Not a word: {word}")
                         f.write(f"{day} - ")
@@ -219,8 +221,6 @@ class Engine():
                                                  "allDay": allDay, "multiDay": multiDay})
                                 # [word for word in textMap[i + 1][j + 1] if (word != str(day.dayOfMonth))]
 
-
-
         jsonReturn = json.dumps(jsonData)
 
         # print(f"The month is '{monthEstimate}'")
@@ -233,8 +233,8 @@ class Engine():
             with open(f'{debug}/log.txt', 'a', encoding="utf-8") as f:
                 f.write(f"\n{jsonData}")
         self.response = jsonReturn
-        for item in jsonData:
-            print(item)
+        # for item in jsonData:
+        #     print(item)
         # print(self.response)
 
     def returnResponse(self):
@@ -247,10 +247,9 @@ class Engine():
             if item['text'].lower() in self.months:
                 h = item['days'][1][1] - item['days'][0][1]
                 w = item['days'][1][0] - item['days'][0][0]
-                if surfaceArea < h*w:
+                if surfaceArea < h * w:
                     monthEstimate = item['text']
-                    surfaceArea = h*w
-
+                    surfaceArea = h * w
 
                 with open(f'{self.debug}/log.txt', 'a') as f:
                     f.write(f"Month SA: {surfaceArea}\n")
@@ -267,5 +266,6 @@ class Engine():
     def predictYear(self):
         return datetime.now().year
 
+
 if __name__ == '__main__':
-    Engine(live=False,  debug="C:\\Users\\jxgisi\\PycharmProjects\\CalScanBackend\\deepData")
+    Engine(live=False, debug="C:\\Users\\jxgisi\\PycharmProjects\\CalScanBackend\\deepData")

@@ -30,7 +30,7 @@ class OCR:
             #### TEXT DETECTION ######
             response_text = json.loads(response.content)['responses'][0]
 
-            path = f"{os.getcwd()}\\CalScanBackend"
+            path = f"{os.getcwd()}/CalScanBackend"
             filePath = path + f"{imageName}_response.pickle"
             print(filePath)
             with open(filePath, "wb") as f:
@@ -38,7 +38,7 @@ class OCR:
 
         else:
             path = f"{os.getcwd()}"
-            save = open(path + f"\\{imageName}_response.pickle", "rb")
+            save = open(path + f"/{imageName}_response.pickle", "rb")
             response_text = pickle.load(save)
             image_path = f'{imageName}.jpg'
             image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
