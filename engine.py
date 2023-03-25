@@ -185,8 +185,9 @@ class Engine():
                     for j, day in enumerate(row):
                         for word in textMap[i + 1][j + 1]:
                             if word.lower() != day.dayOfMonth:
-                                if bookOfWords.check(word) and not word.isnumeric() and len(word) > 1:
+                                if bookOfWords.check(word) and not word.isnumeric() and len(word) > 1 and day.dayOfMonth != -1:
                                     title = word
+                                    # print(word, day.dayOfMonth)
                                     start_iso_date = f'{yearEstimate}-{self.monthsMap[monthEstimate.lower()]}-{day.dayOfMonth}T00:00:00Z'
                                     end_iso_date = start_iso_date
                                     attendees = "null"
@@ -233,8 +234,8 @@ class Engine():
             with open(f'{debug}/log.txt', 'a', encoding="utf-8") as f:
                 f.write(f"\n{jsonData}")
         self.response = jsonReturn
-        # for item in jsonData:
-        #     print(item)
+        for item in jsonData:
+            print(item)
         # print(self.response)
 
     def returnResponse(self):
