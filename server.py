@@ -1,14 +1,37 @@
+import json
+
 from flask import Flask, request
 import jsonpickle
+from DocScanner.DocScannerOneFrame import findFrame
 import base64
 from engine import Engine
 from datetime import datetime
 import os
+import cv2
 
 # Initialize the Flask application
 app = Flask(__name__)
 hostName = "143.198.148.21"
 
+# route http posts to this method
+@app.route('/api/findFrame', methods=['GET'])
+def findFrameEndpoint():
+    r = request
+    image_name = r.headers['image-name']
+    is_live = r.headers['live'] == 'True'
+    image_64_decode = base64.decodebytes(r.data)
+
+    if image_64_decode:
+        image_result = open(image_name, 'wb')  # create a writable image and write the decoding result
+        image_result.write(image_64_decode)
+
+    # encode response using jsonpickle
+    ff = findFrame(image_name)
+    ff.run()
+
+    # print(ff.out_image)
+
+    return ff.out_image
 
 # route http posts to this method
 @app.route('/api/calendar', methods=['POST'])

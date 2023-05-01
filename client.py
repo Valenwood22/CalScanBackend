@@ -16,6 +16,8 @@ print("sending post")
 response = requests.post(url, data=image_64_encode, headers=headers)
 
 # decode response
-print(response.text)
+print()
+image_64_encode = base64.decodebytes(response.text)
+
 
 
