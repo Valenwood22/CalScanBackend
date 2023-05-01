@@ -70,7 +70,7 @@ class findFrame:
                 cv2.imwrite("DocScanner/ff.jpg", imgWarpColored)
 
                 # retval, buffer = cv2.imencode('.jpg',imgWarpColored)
-                self.out_image = "ff.jpg"
+                self.out_image = "DocScanner/ff.jpg"
 
             else:
                 if not self.foundThresh:
